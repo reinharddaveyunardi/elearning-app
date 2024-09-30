@@ -32,7 +32,7 @@ function LoginScreen({ navigation }: any) {
             >
                 <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
                     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-                        <View style={Style.boxContainer}>
+                        <View style={[Style.boxContainer]}>
                             <View style={Style.iconContainer}>
                                 <Image source={require("@/assets/images/icon.png")} style={{ width: 80, height: 80 }} />
                             </View>

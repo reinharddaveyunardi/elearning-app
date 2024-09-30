@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "elearning-app",
+    "name": "Elarning SCK SCB",
     "slug": "elearning-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,7 +19,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.voxxen.elearningapp"
     },
     "web": {
       "bundler": "metro",
@@ -31,6 +32,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "e9568c02-ab6d-4d6a-aa0a-5cec70d2c876"
+      }
     }
   }
 }

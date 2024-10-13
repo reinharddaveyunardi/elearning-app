@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import {Ionicons} from "@expo/vector-icons";
 
 export const Icons = {
     Home: <Ionicons name="home" size={24} color="black" />,
@@ -13,4 +13,21 @@ export const Icons = {
     Add: <Ionicons name="add" size={24} color="black" />,
     Search: <Ionicons name="search" size={24} color="black" />,
     Book: <Ionicons name="book" size={24} color="black" />,
+    Art: <Ionicons name="color-palette" size={16} color="black" />,
+    Biology: <Ionicons name="flask" size={16} color="black" />,
+    Chemistry: <Ionicons name="flask" size={16} color="black" />,
+    Physics: <Ionicons name="flask" size={16} color="black" />,
+    Sociology: <Ionicons name="chatbubble" size={16} color="black" />,
+    Civic: <Ionicons name="book" size={16} color="black" />,
+    History: <Ionicons name="book" size={16} color="black" />,
+    Bahasa: <Ionicons name="language" size={16} color="black" />,
+    English: <Ionicons name="language" size={16} color="black" />,
+    IT: <Ionicons name="code" size={16} color="black" />,
+    Geography: <Ionicons name="earth" size={16} color="black" />,
+    Mathematics: <Ionicons name="calculator" size={16} color="black" />,
+    Sundanesse: <Ionicons name="language" size={16} color="black" />,
+    Physical: <Ionicons name="walk" size={16} color="black" />,
+    Religion: <Ionicons name="book" size={16} color="black" />,
+    Economics: <Ionicons name="calculator" size={16} color="black" />,
+    PoE: <Ionicons name="bulb" size={16} color="black" />,
 };

@@ -30,4 +30,6 @@ export const colorPalette = {
     secondary: "#1e396b",
     white: "#fff",
     black: "#000",
+    red: "#ff0000",
+    sideBar: "#2C7C7C",
 };

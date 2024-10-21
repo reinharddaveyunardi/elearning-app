@@ -48,7 +48,7 @@ export default function CourseMenuScreen({navigation}: any) {
     };
     setTimeout(() => {
         fetchCourse();
-    }, 1000);
+    }, 100);
     const addRecentlyAccessedCourse = async (id: number, imageUrl: string, title: string, tag: []) => {
         if (user) {
             const recentCourseData = {
@@ -91,7 +91,7 @@ export default function CourseMenuScreen({navigation}: any) {
                 <Text>My Course</Text>
                 <View style={Style.Devider} />
             </View>
-            <ScrollView contentContainerStyle={{flexGrow: 1}}>
+            <ScrollView contentContainerStyle={{flexGrow: 1}} showsVerticalScrollIndicator={false}>
                 {course.map((item: any, index: number) => (
                     <View key={index} style={{alignItems: "center"}}>
                         <TouchableOpacity onPress={() => handleClick(item.id, item.imageUrl, item.title, item.tag)} activeOpacity={1}>

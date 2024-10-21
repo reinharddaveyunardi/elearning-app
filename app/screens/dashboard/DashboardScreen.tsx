@@ -4,13 +4,20 @@ import {usePushNotification} from "@/hooks/usePushNotification";
 import {Ionicons} from "@expo/vector-icons";
 import React, {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, StyleSheet, StatusBar, Alert, BackHandler} from "react-native";
+import {Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, StyleSheet, StatusBar, Alert, BackHandler, Dimensions} from "react-native";
 import {signOut} from "firebase/auth";
 import {auth} from "@/service/Firebase";
 import {colorPalette} from "@/constants/Colors";
 import {SignIn} from "@/service/api";
+import Carousel from "react-native-reanimated-carousel";
 
+const libraryBanner = require("@/assets/images/library-banner.png");
+const scienceBanner = require("@/assets/images/science-banner.png");
+const labScbBanner = require("@/assets/images/lab-scb-banner.jpg");
+
+const banner = [libraryBanner, scienceBanner, labScbBanner];
 function DashboardScreen({navigation}: any) {
+    const width = Dimensions.get("window").width;
     const [userLoaded, setUserLoaded] = useState(false);
 
     useEffect(() => {
@@ -55,15 +62,6 @@ function DashboardScreen({navigation}: any) {
     const user = auth.currentUser;
     const {expoPushToken} = usePushNotification();
     console.log(expoPushToken);
-    const handleLogout = async () => {
-        try {
-            await signOut(auth);
-            await AsyncStorage.removeItem("user");
-            navigation.navigate("SignIn");
-        } catch (error) {
-            console.log("Error logging out:", error);
-        }
-    };
     return (
         <SafeAreaView style={{flex: 1}}>
             <StatusBar barStyle="light-content" backgroundColor={colorPalette.primary} />
@@ -88,7 +86,20 @@ function DashboardScreen({navigation}: any) {
                 showsVerticalScrollIndicator={false}
             >
                 <View style={Style.gap}>
-                    <Image style={{width: "100%", height: 200, borderRadius: 10}} resizeMode="cover" source={require("@/assets/images/library-banner.png")} />
+                    <Carousel
+                        width={width}
+                        height={200}
+                        loop
+                        scrollAnimationDuration={3000}
+                        autoPlay={true}
+                        data={banner}
+                        snapEnabled
+                        renderItem={({item}) => (
+                            <View style={{marginHorizontal: 10}}>
+                                <Image style={{width: "95%", height: 200, borderRadius: 10}} resizeMode="cover" source={item} />
+                            </View>
+                        )}
+                    />
                 </View>
                 {user && <Activity />}
                 {user && <RecentlyAccessedCourse navigation={navigation} />}

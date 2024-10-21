@@ -2,13 +2,16 @@ import {colorPalette} from "@/constants/Colors";
 import {auth, fs, storage} from "@/service/Firebase";
 import {collection, onSnapshot, limit, query} from "firebase/firestore";
 import {ref, getDownloadURL} from "firebase/storage";
-import React, {useEffect, useState} from "react";
-import {View, Text, Image, StyleSheet, ScrollView, TouchableOpacity} from "react-native";
+import React, {useCallback, useEffect, useState} from "react";
+import {View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, Dimensions} from "react-native";
 import {Style} from "@/styles/Style";
 import {useNavigation} from "@react-navigation/native";
+import Carousel, {TAnimationStyle} from "react-native-reanimated-carousel";
+import {interpolate} from "react-native-reanimated";
 
 const RecentlyAccessedCourse = ({navigation}: any) => {
     // const navigation = useNavigation();
+    const width = Dimensions.get("window").width;
     const [recentCourse, setCourse] = useState<any[]>([]);
     const user = auth.currentUser;
 
@@ -48,53 +51,72 @@ const RecentlyAccessedCourse = ({navigation}: any) => {
     const handleClick = async (id: number, banner: string, title: string, tag: []) => {
         navigation.navigate(`Course`, {id: id, title: title, banner: banner, tag: tag});
     };
+
+    const animationStyle: TAnimationStyle = React.useCallback((value: number) => {
+        "worklet";
+
+        const zIndex = interpolate(value, [-1, 0, 1], [10, 20, 30]);
+        const rotateZ = `${interpolate(value, [-1, 0, 1], [-45, 0, 45])}deg`;
+        const translateX = interpolate(value, [-1, 0, 1], [-width, 0, width]);
+
+        return {
+            transform: [{rotateZ}, {translateX}],
+            zIndex,
+        };
+    }, []);
     return (
-        <View style={styles.Container}>
+        <View>
             <View>
                 <Text>Recently Accessed Courses</Text>
                 <View style={Style.Devider} />
             </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {recentCourse ? (
-                    recentCourse.map((item: any, index: number) => (
-                        <View key={index} style={{alignItems: "center"}}>
-                            <TouchableOpacity onPress={() => handleClick(item.id, item.imageUrl, item.title, item.tag)} activeOpacity={1}>
-                                <View style={styles.Card}>
-                                    {item.imageUrl && (
+            <Carousel
+                loop
+                style={{
+                    height: 240,
+                    width: "100%",
+                    top: 10,
+                }}
+                width={width}
+                height={width / 2}
+                data={recentCourse}
+                renderItem={({item}) => (
+                    <TouchableOpacity
+                        onPress={() => handleClick(item.id, item.imageUrl, item.title, item.tag)}
+                        activeOpacity={1}
+                        style={{alignItems: "center", justifyContent: "center", top: 20}}
+                    >
+                        <View style={styles.Card}>
+                            {item.imageUrl && (
+                                <View>
+                                    <Image
+                                        key={item}
+                                        source={{
+                                            uri: item.imageUrl,
+                                        }}
+                                        style={styles.Image}
+                                    />
+                                    <View style={styles.courseInformation}>
                                         <View>
-                                            <Image
-                                                key={index}
-                                                source={{
-                                                    uri: item.imageUrl,
-                                                }}
-                                                style={styles.Image}
-                                            />
-                                            <View style={styles.courseInformation}>
-                                                <View>
-                                                    <Text style={styles.courseTitle}>{item.title}</Text>
-                                                    <View style={styles.tagContainer}>
-                                                        {item.tag.map((tag: string, index: number) => (
-                                                            <View key={index} style={styles.tag}>
-                                                                <Text key={index} style={styles.tagText}>
-                                                                    #{tag}
-                                                                </Text>
-                                                            </View>
-                                                        ))}
+                                            <Text style={styles.courseTitle}>{item.title}</Text>
+                                            <View style={styles.tagContainer}>
+                                                {item.tag.map((tag: string, index: number) => (
+                                                    <View key={index} style={styles.tag}>
+                                                        <Text key={index} style={styles.tagText}>
+                                                            #{tag}
+                                                        </Text>
                                                     </View>
-                                                </View>
+                                                ))}
                                             </View>
                                         </View>
-                                    )}
+                                    </View>
                                 </View>
-                            </TouchableOpacity>
+                            )}
                         </View>
-                    ))
-                ) : (
-                    <View>
-                        <Text>No Course</Text>
-                    </View>
+                    </TouchableOpacity>
                 )}
-            </ScrollView>
+                customAnimation={animationStyle}
+            />
         </View>
     );
 };
@@ -134,7 +156,6 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 10,
         borderTopLeftRadius: 10,
         backgroundColor: colorPalette.white,
-
         shadowColor: "#171717",
         shadowOffset: {width: 0, height: -7},
         shadowOpacity: 0.2,

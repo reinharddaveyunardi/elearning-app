@@ -173,7 +173,7 @@ const Styles = StyleSheet.create({
         textAlign: "center",
         color: colorPalette.white,
         fontWeight: "bold",
-        width: 80,
+        width: 120,
         marginTop: 5,
         padding: 5,
         borderRadius: 8,

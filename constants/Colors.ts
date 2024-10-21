@@ -32,4 +32,5 @@ export const colorPalette = {
     black: "#000",
     red: "#ff0000",
     sideBar: "#2C7C7C",
+    gold: "#F0CC00",
 };

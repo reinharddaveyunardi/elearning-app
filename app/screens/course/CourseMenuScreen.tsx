@@ -46,15 +46,14 @@ export default function CourseMenuScreen({navigation}: any) {
             });
         }
     };
-    useEffect(() => {
+    setTimeout(() => {
         fetchCourse();
-    }, []);
-
-    const addRecentlyAccessedCourse = async (id: number, banner: string, title: string, tag: []) => {
+    }, 1000);
+    const addRecentlyAccessedCourse = async (id: number, imageUrl: string, title: string, tag: []) => {
         if (user) {
             const recentCourseData = {
                 courseId: id,
-                banner,
+                imageUrl,
                 title,
                 tag,
                 time: new Date(),
@@ -70,7 +69,7 @@ export default function CourseMenuScreen({navigation}: any) {
 
     const handleClick = async (id: number, banner: string, title: string, tag: []) => {
         await addRecentlyAccessedCourse(id, banner, title, tag);
-        console.log("Course added to recently accessed courses");
+        navigation.navigate(`Course`, {id: id, title: title, banner: banner, tag: tag});
     };
     return (
         <SafeAreaView style={{flex: 1}}>
@@ -95,7 +94,7 @@ export default function CourseMenuScreen({navigation}: any) {
             <ScrollView contentContainerStyle={{flexGrow: 1}}>
                 {course.map((item: any, index: number) => (
                     <View key={index} style={{alignItems: "center"}}>
-                        <TouchableOpacity onPress={() => handleClick(item.id, item.banner, item.title, item.tag)} activeOpacity={1}>
+                        <TouchableOpacity onPress={() => handleClick(item.id, item.imageUrl, item.title, item.tag)} activeOpacity={1}>
                             <View style={styles.Card}>
                                 {item.imageUrl && (
                                     <View>

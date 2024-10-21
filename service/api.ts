@@ -1,17 +1,17 @@
-import {auth, fs, storage} from "@/service/Firebase";
-import {collection, doc, onSnapshot, setDoc} from "@firebase/firestore";
+import {auth, fs} from "@/service/Firebase";
+import {collection, doc, getDoc, getDocs, onSnapshot, orderBy, query, setDoc} from "@firebase/firestore";
 import {UserCredentials} from "@/interface";
-import {getDownloadURL, ref} from "@firebase/storage";
-import {onAuthStateChanged, signInWithEmailAndPassword} from "@firebase/auth";
+import {signInWithEmailAndPassword} from "@firebase/auth";
 import {validationMessages} from "@/constants/messages";
 import {useCallback, useEffect, useState} from "react";
 import {calculateDaysLeft} from "@/utils/getDaysLeft";
-import {storeKeepLoggedIn} from "@/storage/asyncStorage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export const SignIn = async ({email, password}: UserCredentials) => {
+export const SignIn = async ({email, password, isRemembered}: UserCredentials) => {
     try {
         const response = await signInWithEmailAndPassword(auth, email, password);
-        storeKeepLoggedIn({email, password});
+        AsyncStorage.setItem("keepLoggedIn", String(isRemembered));
+        AsyncStorage.setItem("userData", JSON.stringify({email, password}));
         return {user: response.user};
     } catch (error: any) {
         let errorMessage = validationMessages.stillFailed;
@@ -31,52 +31,6 @@ export const SignIn = async ({email, password}: UserCredentials) => {
         }
         throw new Error(errorMessage);
     }
-};
-
-export const useFetchCourse = () => {
-    const [course, setCourse] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    const user = auth.currentUser;
-    let unsubscribe: any;
-
-    if (user) {
-        const courseRef = collection(fs, `course/`);
-        unsubscribe = onSnapshot(courseRef, async (snapshot) => {
-            const fetchedCourses = await Promise.all(
-                snapshot.docs.map(async (doc) => {
-                    const data = doc.data();
-                    const title = data.title;
-                    const imageId = data.banner;
-                    const tagCourse = data.tag;
-                    let imageUrl = null;
-                    if (imageId) {
-                        try {
-                            const imageRef = ref(storage, `course-banner/${imageId}`);
-                            imageUrl = await getDownloadURL(imageRef);
-                        } catch (error) {
-                            console.log("Error fetching image for", imageId, ":", error);
-                        }
-                    }
-
-                    return {
-                        id: doc.id,
-                        title,
-                        ...data,
-                        imageUrl,
-                        tagCourse,
-                    };
-                })
-            );
-            setCourse(fetchedCourses);
-            setLoading(false);
-        });
-    }
-
-    return {course, loading};
-    return () => {
-        if (unsubscribe) unsubscribe();
-    };
 };
 
 export const useFetchHomework = () => {
@@ -128,27 +82,31 @@ export const useFetchQuiz = () => {
     return {quiz};
 };
 
-export const addRecentCourse = async () => {
-    const [titleCourse, setCourse] = useState("");
+export const useFetchCourseContent = (id: number) => {
+    const [courseContent, setCourseContent] = useState<any>([]);
+    const [assignments, setAssignments] = useState<any[]>([]);
+    const [announcement, setAnnouncement] = useState<any[]>([]);
 
-    const handleAddRecentCourse = useCallback((index: number) => {
-        console.log("Add recent course:", index);
-    }, []);
-
-    const addRecentCourseCard = async () => {
+    useEffect(() => {
         const user = auth.currentUser;
-        if (user) {
-            const randomid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-            const recentCourseData = {
-                id: randomid,
-                title: titleCourse,
-                time: new Date(),
-            };
-            try {
-                await setDoc(doc(fs, `users/${user.uid}/recentCourse/${randomid}`), recentCourseData);
-            } catch (error) {
-                console.log("Error adding recent course:", error);
+        const fetchCourseContent = async () => {
+            const contentRef = doc(fs, `course/${id}`);
+            const contentDoc = await getDoc(contentRef);
+            if (contentDoc.exists()) {
+                setCourseContent(contentDoc.data());
+                const assignmentsRef = collection(fs, `course/${id}/assign`);
+                const assignQuery = query(assignmentsRef, orderBy("dueDate"));
+                const assignSnapshot = await getDocs(assignQuery);
+                const assignData = assignSnapshot.docs.map((doc) => doc.data());
+                setAssignments(assignData);
+                const announcementRef = collection(fs, `course/${id}/announ`);
+                const announcementSnapshot = await getDocs(announcementRef);
+                const announcementData = announcementSnapshot.docs.map((doc) => doc.data());
+                setAnnouncement(announcementData);
+            } else {
+                console.log("There's no content for this course");
             }
-        }
-    };
+        };
+        fetchCourseContent();
+    }, []);
 };

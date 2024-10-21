@@ -1,4 +1,4 @@
-import {colorPalette, Colors} from "@/constants/Colors";
+import {colorPalette} from "@/constants/Colors";
 import {useFetchHomework, useFetchQuiz} from "@/service/api";
 import {Ionicons} from "@expo/vector-icons";
 import React, {useState} from "react";

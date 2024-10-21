@@ -4,36 +4,57 @@ import {usePushNotification} from "@/hooks/usePushNotification";
 import {Ionicons} from "@expo/vector-icons";
 import React, {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, StyleSheet, StatusBar} from "react-native";
-import {retrieveKeepLoggedIn} from "@/storage/asyncStorage";
-import {signInWithEmailAndPassword, signOut, User} from "firebase/auth";
+import {Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, StyleSheet, StatusBar, Alert, BackHandler} from "react-native";
+import {signOut} from "firebase/auth";
 import {auth} from "@/service/Firebase";
 import {colorPalette} from "@/constants/Colors";
+import {SignIn} from "@/service/api";
 
 function DashboardScreen({navigation}: any) {
+    const [userLoaded, setUserLoaded] = useState(false);
+
+    useEffect(() => {
+        const getUserData = async () => {
+            console.log("getUserData inside");
+            const storedData = await AsyncStorage.getItem("userData");
+            const keepLoggedIn = await AsyncStorage.getItem("keepLoggedIn");
+            if (storedData !== null) {
+                const parsedData = JSON.parse(storedData);
+                if (parsedData.email && parsedData.password) {
+                    SignIn({email: parsedData.email, password: parsedData.password, isRemembered: keepLoggedIn?.toString()});
+                    setUserLoaded(true);
+                }
+            }
+        };
+        if (!userLoaded) {
+            setTimeout(() => {
+                getUserData();
+                console.log("getUserData");
+            }, 1000);
+        }
+        const onBackPress = () => {
+            Alert.alert(
+                "Exit Elearning?",
+                "Are you sure want to exit the app?",
+                [
+                    {
+                        text: "No",
+                        onPress: () => console.log("Cancel Pressed"),
+                        style: "cancel",
+                    },
+                    {text: "Yes", onPress: () => BackHandler.exitApp()},
+                ],
+                {cancelable: false}
+            );
+            return true;
+        };
+        const backHandler = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+
+        return () => backHandler.remove();
+    }, [userLoaded]);
     const user = auth.currentUser;
-    // useEffect(() => {
-    //     const loadUserData = async () => {
-    //         const {email, password} = await retrieveKeepLoggedIn();
-    //         if (email && password) {
-    //             try {
-    //                 const response = await signInWithEmailAndPassword(
-    //                     auth,
-    //                     email,
-    //                     password
-    //                 );
-    //                 setUser(response.user);
-    //             } catch (error) {
-    //                 console.log("Auto-login failed:", error);
-    //             }
-    //         }
-    //     };
-    //     loadUserData();
-    // }, []);
     const {expoPushToken} = usePushNotification();
-
     console.log(expoPushToken);
-
     const handleLogout = async () => {
         try {
             await signOut(auth);
@@ -70,10 +91,7 @@ function DashboardScreen({navigation}: any) {
                     <Image style={{width: "100%", height: 200, borderRadius: 10}} resizeMode="cover" source={require("@/assets/images/library-banner.png")} />
                 </View>
                 {user && <Activity />}
-                <RecentlyAccessedCourse />
-                <TouchableOpacity onPress={handleLogout}>
-                    <Text>Logout</Text>
-                </TouchableOpacity>
+                {user && <RecentlyAccessedCourse navigation={navigation} />}
             </ScrollView>
         </SafeAreaView>
     );
@@ -82,15 +100,17 @@ const Style = StyleSheet.create({
     TopBar: {
         backgroundColor: colorPalette.white,
         shadowColor: "#171717",
-        shadowOffset: {width: -2, height: 7},
+        shadowOffset: {width: -2, height: 5},
         shadowOpacity: 0.2,
         shadowRadius: 3,
         elevation: 10,
         zIndex: 2,
+        height: 100,
+        justifyContent: "center",
+        paddingHorizontal: 32,
     },
     Header: {
         top: 20,
-        padding: 32,
         position: "static",
         display: "flex",
         flexDirection: "row",

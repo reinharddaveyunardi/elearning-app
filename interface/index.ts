@@ -1,8 +1,11 @@
 export interface UserCredentials {
     email: string;
     password: string;
+    isRemembered?: any;
 }
 export type RootStackParamList = {
+    AutoLogin: undefined;
+    LoginScreen: undefined;
     EditProfile: undefined;
     Drawer: undefined;
     CourseMenu: undefined;

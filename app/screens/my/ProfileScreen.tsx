@@ -1,32 +1,27 @@
 import {colorPalette} from "@/constants/Colors";
 import {Ionicons} from "@expo/vector-icons";
-import BottomSheet, {BottomSheetView, useBottomSheet} from "@gorhom/bottom-sheet";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, {useCallback, useMemo, useState} from "react";
-import {View, Text, TouchableOpacity, SafeAreaView, ScrollView, StyleSheet, Image, Button} from "react-native";
+import React from "react";
+import {View, Text, TouchableOpacity, SafeAreaView, ScrollView, StyleSheet, Image, Button, Alert} from "react-native";
 
-function logout({navigation}: any) {
-    AsyncStorage.setItem("keepLoggedIn", "");
-
-    navigation.navigate("SignIn");
+function medal() {
+    Alert.alert("Student of the month!", "This badge can be obtained if you have the highest points. ");
+}
+function science() {
+    Alert.alert(
+        "Science!",
+        `This badge can be obtained if you already completed the Science homework, "Interactive Content - Global Warming and Climate Change". `
+    );
+}
+function org() {
+    Alert.alert("Organization!", "This badge can be obtained if you are an active member of the organization. ");
 }
 
 const ProfileScreen = ({navigation}: any) => {
-    const [openEditProfile, setOpenEditProfile] = useState(false);
-    const bottomSheetRef = React.createRef<BottomSheet>();
-    const snapPoints = useMemo(() => ["10%", "50%"], []);
-    const handleSheetChanges = useCallback((index: number) => {
-        console.log("handleSheetChanges", index);
-    }, []);
-
-    const handleExpandPress = () => {
-        bottomSheetRef.current?.expand();
-    };
     return (
         <SafeAreaView style={{flex: 1}}>
             <View style={Style.TopBar}>
                 <View style={Style.Header}>
-                    <View style={Style.headerRight}>
+                    <View>
                         <TouchableOpacity onPress={() => navigation.navigate("My")}>
                             <View style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
                                 <Ionicons name="arrow-back" size={16} />
@@ -37,21 +32,47 @@ const ProfileScreen = ({navigation}: any) => {
                 </View>
             </View>
             <ScrollView>
-                <View>
-                    <View>
-                        <Image source={require("@/assets/images/user.jpeg")} style={Style.logo} />
-                        <View>
-                            <Text>Full Name Here</Text>
-                            <Text>Email Here</Text>
+                <View style={Style.profileCard}>
+                    <View style={{flexDirection: "row", gap: 10}}>
+                        <Image style={Style.profileImage} source={require("@/assets/images/user.jpeg")} />
+                        <View style={Style.userInfo}>
+                            <Text style={{fontSize: 14, fontWeight: "bold"}}>Full Name Here</Text>
+                            <View style={Style.Devider} />
+                            <View>
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                    <TouchableOpacity style={{marginHorizontal: 15}} onPress={() => medal()}>
+                                        <View style={{alignItems: "center"}}>
+                                            <View>
+                                                <Ionicons name="medal" color={colorPalette.gold} size={20} />
+                                            </View>
+                                            <View style={{backgroundColor: colorPalette.gold, paddingHorizontal: 5, borderRadius: 5}}>
+                                                <Text style={{color: "white", fontWeight: "bold"}}>#1</Text>
+                                            </View>
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={{marginHorizontal: 15}} onPress={() => science()}>
+                                        <View style={{alignItems: "center"}}>
+                                            <View>
+                                                <Ionicons name="cloud-outline" color={colorPalette.primary} size={20} />
+                                            </View>
+                                            <View style={{backgroundColor: colorPalette.primary, paddingHorizontal: 5, borderRadius: 5}}>
+                                                <Text style={{color: "white", fontWeight: "bold"}}>Science</Text>
+                                            </View>
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={{marginHorizontal: 15}} onPress={() => org()}>
+                                        <View style={{alignItems: "center"}}>
+                                            <View>
+                                                <Ionicons name="people" color={colorPalette.secondary} size={20} />
+                                            </View>
+                                            <View style={{backgroundColor: colorPalette.secondary, paddingHorizontal: 5, borderRadius: 5}}>
+                                                <Text style={{color: "white", fontWeight: "bold"}}>Organization</Text>
+                                            </View>
+                                        </View>
+                                    </TouchableOpacity>
+                                </ScrollView>
+                            </View>
                         </View>
-                    </View>
-                </View>
-                <View>
-                    <Button onPress={handleExpandPress} title="Edit Profile" />
-                    <View style={Style.container}>
-                        <BottomSheet ref={bottomSheetRef} onChange={handleSheetChanges} snapPoints={snapPoints}>
-                            <ProfileContent navigation={navigation} />
-                        </BottomSheet>
                     </View>
                 </View>
             </ScrollView>
@@ -61,34 +82,26 @@ const ProfileScreen = ({navigation}: any) => {
 
 export default ProfileScreen;
 
-function ProfileContent({navigation}: any) {
-    return (
-        <BottomSheetView style={Style.contentContainer}>
-            <Text>Awesome 🎉</Text>
-        </BottomSheetView>
-    );
-}
-
 const Style = StyleSheet.create({
     TopBar: {
         backgroundColor: colorPalette.white,
         shadowColor: "#171717",
-        shadowOffset: {width: -2, height: 7},
+        shadowOffset: {width: -2, height: 5},
         shadowOpacity: 0.2,
         shadowRadius: 3,
         elevation: 10,
         zIndex: 2,
+        height: 100,
+        justifyContent: "center",
+        paddingHorizontal: 32,
     },
     Header: {
-        justifyContent: "center",
-        height: 80,
+        top: 20,
         position: "static",
-    },
-    headerRight: {
-        top: 10,
-        left: 20,
-        justifyContent: "center",
-        flex: 1,
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
     },
     logoContainer: {
         backgroundColor: "white",
@@ -101,13 +114,44 @@ const Style = StyleSheet.create({
     gap: {
         marginVertical: 10,
     },
-    container: {
-        flex: 1,
-        padding: 24,
-        backgroundColor: "grey",
-    },
-    contentContainer: {
-        flex: 1,
+    profileCard: {
+        paddingVertical: 20,
+        paddingHorizontal: 20,
+        backgroundColor: "white",
         alignItems: "center",
+        marginVertical: 20,
+        marginHorizontal: 20,
+        borderRadius: 20,
+    },
+    profileImage: {
+        width: 120,
+        height: 120,
+        borderRadius: 180 / 2,
+    },
+    userInfo: {
+        flex: 1,
+        padding: 20,
+        justifyContent: "space-between",
+    },
+    badgeContainer: {
+        display: "flex",
+        flexDirection: "row",
+        flexWrap: "wrap",
+        width: "40%",
+        marginVertical: 10,
+        gap: 10,
+        alignItems: "center",
+    },
+    badge: {
+        width: 25,
+        height: 40,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    Devider: {
+        width: "100%",
+        backgroundColor: colorPalette.primary,
+        height: 2,
+        borderRadius: 50,
     },
 });

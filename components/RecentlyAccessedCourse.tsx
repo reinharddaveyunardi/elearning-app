@@ -5,8 +5,10 @@ import {ref, getDownloadURL} from "firebase/storage";
 import React, {useEffect, useState} from "react";
 import {View, Text, Image, StyleSheet, ScrollView, TouchableOpacity} from "react-native";
 import {Style} from "@/styles/Style";
+import {useNavigation} from "@react-navigation/native";
 
-const RecentlyAccessedCourse = () => {
+const RecentlyAccessedCourse = ({navigation}: any) => {
+    // const navigation = useNavigation();
     const [recentCourse, setCourse] = useState<any[]>([]);
     const user = auth.currentUser;
 
@@ -20,18 +22,9 @@ const RecentlyAccessedCourse = () => {
                     snapshot.docs.map(async (doc) => {
                         const data = doc.data();
                         const title = data.title;
-                        const imageId = data.banner;
+                        const imageUrl = data.imageUrl;
                         const time = data.time;
                         const tagCourse = data.tag;
-                        let imageUrl = null;
-                        if (imageId) {
-                            try {
-                                const imageRef = ref(storage, `course-banner/${imageId}`);
-                                imageUrl = await getDownloadURL(imageRef);
-                            } catch (error) {
-                                console.log("Error fetching image for", imageId, ":", error);
-                            }
-                        }
 
                         return {
                             id: doc.id,
@@ -52,17 +45,20 @@ const RecentlyAccessedCourse = () => {
     useEffect(() => {
         fetchRecentCourse();
     }, []);
+    const handleClick = async (id: number, banner: string, title: string, tag: []) => {
+        navigation.navigate(`Course`, {id: id, title: title, banner: banner, tag: tag});
+    };
     return (
         <View style={styles.Container}>
             <View>
                 <Text>Recently Accessed Courses</Text>
                 <View style={Style.Devider} />
             </View>
-            <ScrollView horizontal>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {recentCourse ? (
                     recentCourse.map((item: any, index: number) => (
-                        <View key={index} style={{alignItems: "center", marginHorizontal: 20}}>
-                            <TouchableOpacity onPress={() => console.log(item.title, "Clicked")} activeOpacity={1}>
+                        <View key={index} style={{alignItems: "center"}}>
+                            <TouchableOpacity onPress={() => handleClick(item.id, item.imageUrl, item.title, item.tag)} activeOpacity={1}>
                                 <View style={styles.Card}>
                                     {item.imageUrl && (
                                         <View>

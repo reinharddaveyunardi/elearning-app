@@ -5,24 +5,27 @@ import {Ionicons} from "@expo/vector-icons";
 import React, {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Text, View, SafeAreaView, TouchableOpacity, ScrollView, Image, StyleSheet, StatusBar, Alert, BackHandler, Dimensions} from "react-native";
-import {signOut} from "firebase/auth";
 import {auth} from "@/service/Firebase";
 import {colorPalette} from "@/constants/Colors";
 import {SignIn} from "@/service/api";
 import Carousel from "react-native-reanimated-carousel";
+import {thisDeviceWidth} from "@/utils/Utils";
+import {useTranslation} from "react-i18next";
+import CustomAlert from "@/components/Alert";
 
 const libraryBanner = require("@/assets/images/library-banner.png");
 const scienceBanner = require("@/assets/images/science-banner.png");
 const labScbBanner = require("@/assets/images/lab-scb-banner.jpg");
 
 const banner = [libraryBanner, scienceBanner, labScbBanner];
-function DashboardScreen({navigation}: any) {
-    const width = Dimensions.get("window").width;
+function DashboardScreen({navigation: {goBack}, navigation}: any) {
+    const {t} = useTranslation();
+    const [messageStatus, setMessageStatus] = useState("");
+    const [showMessage, setShowMessage] = useState(false);
     const [userLoaded, setUserLoaded] = useState(false);
 
     useEffect(() => {
         const getUserData = async () => {
-            console.log("getUserData inside");
             const storedData = await AsyncStorage.getItem("userData");
             const keepLoggedIn = await AsyncStorage.getItem("keepLoggedIn");
             if (storedData !== null) {
@@ -30,6 +33,8 @@ function DashboardScreen({navigation}: any) {
                 if (parsedData.email && parsedData.password) {
                     SignIn({email: parsedData.email, password: parsedData.password, isRemembered: keepLoggedIn?.toString()});
                     setUserLoaded(true);
+                    setMessageStatus(`Welcome back!`);
+                    setShowMessage(true);
                 }
             }
         };
@@ -40,20 +45,25 @@ function DashboardScreen({navigation}: any) {
             }, 1000);
         }
         const onBackPress = () => {
-            Alert.alert(
-                "Exit Elearning?",
-                "Are you sure want to exit the app?",
-                [
-                    {
-                        text: "No",
-                        onPress: () => console.log("Cancel Pressed"),
-                        style: "cancel",
-                    },
-                    {text: "Yes", onPress: () => BackHandler.exitApp()},
-                ],
-                {cancelable: false}
-            );
-            return true;
+            if (navigation.isFocused()) {
+                Alert.alert(
+                    "Exit Elearning?",
+                    "Are you sure want to exit the app?",
+                    [
+                        {
+                            text: "No",
+                            onPress: () => console.log("Cancel Pressed"),
+                            style: "cancel",
+                        },
+                        {text: "Yes", onPress: () => BackHandler.exitApp()},
+                    ],
+                    {cancelable: false}
+                );
+                return true;
+            } else {
+                navigation.goBack;
+                return false;
+            }
         };
         const backHandler = BackHandler.addEventListener("hardwareBackPress", onBackPress);
 
@@ -64,7 +74,8 @@ function DashboardScreen({navigation}: any) {
     console.log(expoPushToken);
     return (
         <SafeAreaView style={{flex: 1}}>
-            <StatusBar barStyle="light-content" backgroundColor={colorPalette.primary} />
+            {user && <StatusBar backgroundColor={colorPalette.primary} />}
+            <CustomAlert message={messageStatus} visible={showMessage} onClose={() => setShowMessage(false)} />
             <View style={Style.TopBar}>
                 <View style={Style.Header}>
                     <View>
@@ -80,14 +91,13 @@ function DashboardScreen({navigation}: any) {
             </View>
             <ScrollView
                 style={{
-                    padding: 10,
                     height: "100%",
                 }}
                 showsVerticalScrollIndicator={false}
             >
                 <View style={Style.gap}>
                     <Carousel
-                        width={width}
+                        width={thisDeviceWidth}
                         height={200}
                         loop
                         scrollAnimationDuration={3000}
@@ -95,8 +105,8 @@ function DashboardScreen({navigation}: any) {
                         data={banner}
                         snapEnabled
                         renderItem={({item}) => (
-                            <View style={{marginHorizontal: 10}}>
-                                <Image style={{width: "95%", height: 200, borderRadius: 10}} resizeMode="cover" source={item} />
+                            <View style={{alignItems: "center", justifyContent: "center"}}>
+                                <Image style={{width: "95%", height: 200, borderRadius: 10, alignItems: "center"}} resizeMode="cover" source={item} />
                             </View>
                         )}
                     />

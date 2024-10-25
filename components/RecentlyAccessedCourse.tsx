@@ -1,73 +1,42 @@
 import {colorPalette} from "@/constants/Colors";
-import {auth, fs, storage} from "@/service/Firebase";
-import {collection, onSnapshot, limit, query} from "firebase/firestore";
-import {ref, getDownloadURL} from "firebase/storage";
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useState} from "react";
 import {View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, Dimensions} from "react-native";
 import {Style} from "@/styles/Style";
-import {useNavigation} from "@react-navigation/native";
 import Carousel, {TAnimationStyle} from "react-native-reanimated-carousel";
 import {interpolate} from "react-native-reanimated";
+import {useRecentCourse} from "@/service/api";
+import {useTranslation} from "react-i18next";
 
 const RecentlyAccessedCourse = ({navigation}: any) => {
-    // const navigation = useNavigation();
+    const {t} = useTranslation();
     const width = Dimensions.get("window").width;
-    const [recentCourse, setCourse] = useState<any[]>([]);
-    const user = auth.currentUser;
-
-    const fetchRecentCourse = async () => {
-        let unsubscribe = null;
-        if (user) {
-            const courseRef = collection(fs, `users/${user.uid}/recent-course/`);
-            const queryall = query(courseRef, limit(5));
-            unsubscribe = onSnapshot(queryall, async (snapshot) => {
-                const fetchedCourses = await Promise.all(
-                    snapshot.docs.map(async (doc) => {
-                        const data = doc.data();
-                        const title = data.title;
-                        const imageUrl = data.imageUrl;
-                        const time = data.time;
-                        const tagCourse = data.tag;
-
-                        return {
-                            id: doc.id,
-                            title,
-                            time,
-                            ...data,
-                            imageUrl,
-                            tagCourse,
-                        };
-                    })
-                );
-                const uniqueCourses = [...new Map(fetchedCourses.map((course) => [course.id, course])).values()];
-                const sortedCourses = uniqueCourses.sort((a, b) => b.time - a.time);
-                setCourse(sortedCourses);
-            });
-        }
+    const [recentCourse, setRecentCourse] = useState<any[]>([]);
+    const fetchRecentCourses = async () => {
+        const data = await useRecentCourse();
+        setRecentCourse(data as any[]);
     };
-    useEffect(() => {
-        fetchRecentCourse();
-    }, []);
+    if (recentCourse.length === 0) {
+        fetchRecentCourses();
+        console.log("fetching");
+    }
     const handleClick = async (id: number, banner: string, title: string, tag: []) => {
         navigation.navigate(`Course`, {id: id, title: title, banner: banner, tag: tag});
     };
 
     const animationStyle: TAnimationStyle = React.useCallback((value: number) => {
         "worklet";
-
         const zIndex = interpolate(value, [-1, 0, 1], [10, 20, 30]);
-        const rotateZ = `${interpolate(value, [-1, 0, 1], [-45, 0, 45])}deg`;
+        const rotateZ = `${interpolate(value, [-1, 0, 1], [-10, 0, 10])}deg`;
         const translateX = interpolate(value, [-1, 0, 1], [-width, 0, width]);
-
         return {
             transform: [{rotateZ}, {translateX}],
             zIndex,
         };
     }, []);
     return (
-        <View>
-            <View>
-                <Text>Recently Accessed Courses</Text>
+        <View style={{marginVertical: 10}}>
+            <View style={{paddingHorizontal: 20}}>
+                <Text>{t("recentCourse.title")}</Text>
                 <View style={Style.Devider} />
             </View>
             <Carousel

@@ -6,6 +6,7 @@ import {getDownloadURL, ref} from "@firebase/storage";
 import {auth, fs, storage} from "@/service/Firebase";
 import {collection, doc, onSnapshot, setDoc} from "firebase/firestore";
 import {Style} from "@/styles/Style";
+import {t} from "i18next";
 
 export default function CourseMenuScreen({navigation}: any) {
     const [course, setCourse] = useState<any[]>([]);
@@ -88,7 +89,7 @@ export default function CourseMenuScreen({navigation}: any) {
                 </View>
             </View>
             <View style={{padding: 20}}>
-                <Text>My Course</Text>
+                <Text>{t("sideBar.myCourse")}</Text>
                 <View style={Style.Devider} />
             </View>
             <ScrollView contentContainerStyle={{flexGrow: 1}} showsVerticalScrollIndicator={false}>

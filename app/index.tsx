@@ -10,9 +10,13 @@ import CourseScreen from "./screens/course/[name]/CourseScreen";
 import EditProfileBottomSheet from "./screens/my/EditProfileBottomSheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useEffect, useState} from "react";
+import i18n from "@/localization/i18n";
+import {I18nextProvider} from "react-i18next";
+import PreferenceScreen from "./screens/my/setting/PreferenceScreen";
+import ChangeLanguageScreen from "./screens/my/setting/ChangeLanguageScreen";
 
-const Stack = createStackNavigator<RootStackParamList>();
-const loggedStack = createStackNavigator<RootStackParamList>();
+const Stack = createStackNavigator();
+const loggedStack = createStackNavigator();
 
 function Inside() {
     return (
@@ -22,6 +26,8 @@ function Inside() {
             <loggedStack.Screen name="CourseMenu" component={CourseMenuScreen} options={{headerShown: false}} />
             <loggedStack.Screen name="Course" component={CourseScreen} options={{headerShown: false}} />
             <loggedStack.Screen name="EditProfile" component={EditProfileBottomSheet} options={{headerShown: false}} />
+            <loggedStack.Screen name="Preferences" component={PreferenceScreen} options={{headerShown: false}} />
+            <loggedStack.Screen name="ChangeLanguage" component={ChangeLanguageScreen} options={{headerShown: false}} />
         </loggedStack.Navigator>
     );
 }
@@ -31,6 +37,7 @@ export default function Index() {
     useEffect(() => {
         const retrieveKeepLoggedIn = async () => {
             const isRemember = await AsyncStorage.getItem("keepLoggedIn");
+            console.log(isRemember);
             setKeepLoggedInValue(isRemember);
         };
 
@@ -38,22 +45,23 @@ export default function Index() {
     }, []);
     return (
         <AuthProvider>
-            <NavigationContainer independent={true}>
-                <Stack.Navigator initialRouteName={"AutoLogin"}>
-                    {keepLoggedInValue === "true" ? (
-                        <>
-                            <Stack.Screen name="AutoLogin" component={Inside} options={{headerShown: false}} key="Drawer" />
-                            <Stack.Screen name="SignIn" component={AuthNavigator} options={{headerShown: false}} />
-                            <Stack.Screen name="Logged" component={Inside} options={{headerShown: false}} />
-                        </>
-                    ) : (
-                        <>
-                            <Stack.Screen name="LoginScreen" component={AuthNavigator} options={{headerShown: false}} />
-                            <Stack.Screen name="Logged" component={Inside} options={{headerShown: false}} />
-                        </>
-                    )}
-                </Stack.Navigator>
-            </NavigationContainer>
+            <I18nextProvider i18n={i18n}>
+                <NavigationContainer independent={true}>
+                    <Stack.Navigator>
+                        {keepLoggedInValue === "true" ? (
+                            <>
+                                <Stack.Screen name="Logged" component={Inside} options={{headerShown: false}} key="Drawer" />
+                                <Stack.Screen name="SignIn" component={AuthNavigator} options={{headerShown: false}} />
+                            </>
+                        ) : (
+                            <>
+                                <Stack.Screen name="SignIn" component={AuthNavigator} options={{headerShown: false}} />
+                                <Stack.Screen name="Logged" component={Inside} options={{headerShown: false}} />
+                            </>
+                        )}
+                    </Stack.Navigator>
+                </NavigationContainer>
+            </I18nextProvider>
         </AuthProvider>
     );
 }

@@ -1,0 +1,54 @@
+{
+    "language": "English",
+    "dashboard": {
+        "title": "This is Dashboard"
+    },
+    "sideBar": {
+        "dashboard": "Dashboard",
+        "myCourse": "My Course",
+        "logout": "Logout"
+    },
+    "profile": {
+        "security": "Security",
+        "language": "Change Language",
+        "notification": "Notification",
+        "preference": "Preference",
+        "badgeHelp": "How to get badges?"
+    },
+    "activity": {
+        "homework": "Homework",
+        "quiz": "Quiz"
+    },
+    "recentCourse": {
+        "title": "Recently Accessed Courses"
+    },
+    "due": {
+        "tomorrow": "Tomorrow",
+        "today": "Today",
+        "overdue": "Overdue",
+        "daysLeft": "days Left"
+    },
+    "buttonsTitle": {
+        "login": "Login",
+        "back": "Back",
+        "reset": "Reset",
+        "save": "Save"
+    },
+    "preferences": {
+        "theme": "Theme",
+        "saveCredentials": "Save Credentials",
+        "help": {
+            "theme": {
+                "title": "Theme",
+                "description": "Toggle between light and dark theme"
+            },
+            "saveCredentials": {
+                "title": "Save Credentials",
+                "description": "Save your credentials. So if you log out, the email and password will be not deleted"
+            }
+        }
+    },
+    "changeLanguage": {
+        "title": "Change Language"
+    }
+}

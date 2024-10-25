@@ -4,6 +4,7 @@ export interface UserCredentials {
     isRemembered?: any;
 }
 export type RootStackParamList = {
+    Preferences: undefined;
     AutoLogin: undefined;
     LoginScreen: undefined;
     EditProfile: undefined;

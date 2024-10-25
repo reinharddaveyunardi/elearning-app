@@ -1,0 +1,54 @@
+{
+    "language": "Indonesia",
+    "screen": {
+        "dashboard": {}
+    },
+    "sideBar": {
+        "dashboard": "Beranda",
+        "myCourse": "Kelas",
+        "logout": "Keluar"
+    },
+    "profile": {
+        "security": "Keamanan",
+        "language": "Ganti bahasa",
+        "notification": "Notifikasi",
+        "preference": "Preferensi",
+        "badgeHelp": "Cara dapat badge?"
+    },
+    "activity": {
+        "homework": "Tugas",
+        "quiz": "Ulangan"
+    },
+    "recentCourse": {
+        "title": "Diakses baru - baru ini"
+    },
+    "due": {
+        "tomorrow": "Besok",
+        "today": "Hari ini",
+        "overdue": "Terlambat",
+        "daysLeft": "Hari tersisa"
+    },
+    "buttonsTitle": {
+        "login": "Masuk",
+        "back": "Kembali",
+        "save": "Simpan",
+        "reset": "Atur ulang"
+    },
+    "preferences": {
+        "theme": "Tema",
+        "saveCredentials": "Simpan informasi akun",
+        "help": {
+            "theme": {
+                "title": "Tema",
+                "description": "Gunakan tema terang atau gelap"
+            },
+            "saveCredentials": {
+                "title": "Simpan informasi akun",
+                "description": "Simpan informasi akun. Tidak perlu memasukan kembali email dan password setelah log out!"
+            }
+        }
+    },
+    "changeLanguage": {
+        "title": "Ganti bahasa"
+    }
+}

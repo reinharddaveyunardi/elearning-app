@@ -3,10 +3,12 @@ import {colorPalette} from "@/constants/Colors";
 import {Ionicons} from "@expo/vector-icons";
 import {createDrawerNavigator} from "@react-navigation/drawer";
 import CourseMenuScreen from "@/app/screens/course/CourseMenuScreen";
+import {useTranslation} from "react-i18next";
 
 const Drawer = createDrawerNavigator();
 
 export default function MenuDrawer() {
+    const {t} = useTranslation();
     return (
         <Drawer.Navigator
             screenOptions={{
@@ -19,7 +21,7 @@ export default function MenuDrawer() {
             initialRouteName="Dashboard"
         >
             <Drawer.Screen
-                name="Dashboard"
+                name={t("sideBar.dashboard")}
                 component={DashboardScreen}
                 options={{
                     headerTitle: "Dashboard",
@@ -27,21 +29,13 @@ export default function MenuDrawer() {
                 }}
             />
             <Drawer.Screen
-                name="My Course"
+                name={t("sideBar.myCourse")}
                 component={CourseMenuScreen}
                 options={{
                     headerShown: false,
                     drawerIcon: () => <Ionicons name="book" color={"#ffff"} />,
                 }}
             />
-            {/* <Drawer.Screen
-                name="Notification"
-                component={CourseMenuScreen}
-                options={{
-                    headerShown: false,
-                    drawerIcon: () => <Ionicons name="notifications" color={"#ffff"} />,
-                }}
-            /> */}
         </Drawer.Navigator>
     );
 }

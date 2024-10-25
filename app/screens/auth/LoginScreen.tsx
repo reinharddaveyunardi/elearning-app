@@ -1,24 +1,13 @@
 import React, {useEffect, useState} from "react";
-import {
-    View,
-    Text,
-    SafeAreaView,
-    ImageBackground,
-    Image,
-    StyleSheet,
-    TextInput,
-    TouchableOpacity,
-    KeyboardAvoidingView,
-    Platform,
-    useColorScheme,
-    ViewStyle,
-} from "react-native";
+import {View, Text, SafeAreaView, ImageBackground, Image, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform} from "react-native";
 import {Icons} from "@/constants/Icons";
 import CustomAlert from "@/components/Alert";
 import {SignIn} from "@/service/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Switch} from "react-native-gesture-handler";
 import {colorPalette} from "@/constants/Colors";
+import {Ionicons} from "@expo/vector-icons";
+import {useFonts} from "expo-font";
 function LoginScreen({navigation}: any) {
     // Credentials
     const [email, setEmail] = useState("");
@@ -27,12 +16,12 @@ function LoginScreen({navigation}: any) {
     // Condition
     const [loading, setLoading] = useState(false);
     const [isRemembered, setIsRemembered] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const rememberToggle = () => setIsRemembered((previous) => !previous);
 
     // Other
     const [messageStatus, setMessageStatus] = useState("");
     const [showMessage, setShowMessage] = useState(false);
-
     const handleLogin = async () => {
         setLoading(true);
         setShowMessage(false);
@@ -40,7 +29,10 @@ function LoginScreen({navigation}: any) {
         try {
             await SignIn({email, password, isRemembered});
             await AsyncStorage.setItem("userData", JSON.stringify({email, password}));
-            navigation.navigate("Logged");
+            navigation.reset({
+                index: 0,
+                routes: [{name: "Logged"}],
+            });
         } catch (error: any) {
             setMessageStatus(error.message);
             setShowMessage(true);
@@ -101,24 +93,51 @@ function LoginScreen({navigation}: any) {
                                         />
                                     </View>
                                 </View>
-                                <View>
-                                    <Text>Password</Text>
-                                    <View style={Style.inputField}>
-                                        {Icons.Password}
-                                        <TextInput
-                                            autoComplete="off"
-                                            value={password ? password : ""}
-                                            style={Style.inputStyle}
-                                            placeholder="Password"
-                                            secureTextEntry
-                                            onChangeText={setPassword}
-                                        />
+                                {showPassword ? (
+                                    <View>
+                                        <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                                            <Text>Password</Text>
+                                            <TouchableOpacity onPress={() => setShowPassword(false)}>
+                                                <Ionicons name="eye-off" size={20} color={colorPalette.primary} />
+                                            </TouchableOpacity>
+                                        </View>
+                                        <View style={Style.inputField}>
+                                            {Icons.Password}
+                                            <TextInput
+                                                keyboardType="visible-password"
+                                                autoComplete="off"
+                                                value={password ? password : ""}
+                                                style={Style.inputStyle}
+                                                placeholder="Password"
+                                                onChangeText={setPassword}
+                                            />
+                                        </View>
                                     </View>
-                                </View>
+                                ) : (
+                                    <View>
+                                        <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                                            <Text>Password</Text>
+                                            <TouchableOpacity onPress={() => setShowPassword(true)}>
+                                                <Ionicons name="eye" size={20} color={colorPalette.primary} />
+                                            </TouchableOpacity>
+                                        </View>
+                                        <View style={Style.inputField}>
+                                            {Icons.Password}
+                                            <TextInput
+                                                autoComplete="off"
+                                                value={password ? password : ""}
+                                                style={Style.inputStyle}
+                                                placeholder="Password"
+                                                secureTextEntry
+                                                onChangeText={setPassword}
+                                            />
+                                        </View>
+                                    </View>
+                                )}
                             </View>
                             <View style={Style.forgotPassword}>
                                 <Text>Forgot Passoword?</Text>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={() => navigation.navigate("Reset")}>
                                     <Text>Reset Now!</Text>
                                 </TouchableOpacity>
                             </View>
@@ -132,7 +151,7 @@ function LoginScreen({navigation}: any) {
                             </View>
                             <View style={Style.buttonContainer}>
                                 <TouchableOpacity style={Style.button} onPress={handleLogin}>
-                                    <Text>{loading ? "Loading..." : "Login"}</Text>
+                                    <Text style={{color: colorPalette.white}}>{loading ? "Loading..." : "Login"}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -178,6 +197,8 @@ const Style = StyleSheet.create({
     },
     inputBox: {
         flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
     },
     inputField: {
         display: "flex",
@@ -189,7 +210,7 @@ const Style = StyleSheet.create({
         borderWidth: 1,
         padding: 5,
         paddingLeft: 15,
-        width: "87%",
+        width: "90%",
         borderRadius: 5,
     },
     forgotPassword: {

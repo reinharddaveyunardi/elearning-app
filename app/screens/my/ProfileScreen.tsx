@@ -1,26 +1,30 @@
 import {studentOfTheMonth, science, organization, seeMore} from "@/constants/BadgeInfo";
 import {colorPalette} from "@/constants/Colors";
+import i18n from "@/localization/i18n";
 import {auth} from "@/service/Firebase";
 import {Ionicons} from "@expo/vector-icons";
-import BottomSheet, {BottomSheetScrollView, BottomSheetView} from "@gorhom/bottom-sheet";
+import BottomSheet from "@gorhom/bottom-sheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {signOut} from "firebase/auth";
-import React, {useCallback, useRef} from "react";
-import {View, Text, TouchableOpacity, SafeAreaView, ScrollView, StyleSheet, Image, Button, Alert, TextInput} from "react-native";
+import React, {useRef} from "react";
+import {useTranslation} from "react-i18next";
+import {View, Text, TouchableOpacity, SafeAreaView, ScrollView, StyleSheet, Image, Alert} from "react-native";
 
 const ProfileScreen = ({navigation}: any) => {
+    const {t} = useTranslation();
     const bottomSheetRef = useRef<BottomSheet>(null);
-
-    const handleSheetChanges = useCallback((index: number) => {
-        console.log("handleSheetChanges", index);
-    }, []);
-
     const handleLogout = async () => {
         try {
             await signOut(auth);
-            await AsyncStorage.removeItem("userData");
-            await AsyncStorage.removeItem("keepLoggedIn");
-            navigation.navigate("SignIn");
+            const getSaveCred = await AsyncStorage.getItem("saveCred");
+            if (getSaveCred === "true") {
+                await AsyncStorage.removeItem("keepLoggedIn");
+                navigation.navigate("SignIn");
+            } else {
+                AsyncStorage.removeItem("userData");
+                await AsyncStorage.removeItem("keepLoggedIn");
+                navigation.navigate("SignIn");
+            }
         } catch (error) {
             console.log("Error logging out:", error);
         }
@@ -44,8 +48,6 @@ const ProfileScreen = ({navigation}: any) => {
             {cancelable: false}
         );
     };
-
-    console.log("bottomSheetRef", bottomSheetRef);
     return (
         <SafeAreaView style={{flex: 1}}>
             <View style={Style.TopBar}>
@@ -54,7 +56,7 @@ const ProfileScreen = ({navigation}: any) => {
                         <TouchableOpacity onPress={() => navigation.navigate("My")}>
                             <View style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
                                 <Ionicons name="arrow-back" size={16} />
-                                <Text>Back</Text>
+                                <Text>{t("buttonsTitle.back")}</Text>
                             </View>
                         </TouchableOpacity>
                     </View>
@@ -63,12 +65,14 @@ const ProfileScreen = ({navigation}: any) => {
             <ScrollView>
                 <View style={Style.profileCard}>
                     <View style={{flexDirection: "row", gap: 10}}>
-                        <Image style={Style.profileImage} source={require("@/assets/images/user.jpeg")} />
+                        <View style={{justifyContent: "center", alignItems: "center"}}>
+                            <Image style={Style.profileImage} source={require("@/assets/images/user.jpeg")} />
+                        </View>
                         <View style={Style.userInfo}>
-                            <Text style={{fontSize: 14, fontWeight: "bold"}}>Full Name Here</Text>
-                            <Text style={{fontWeight: "200", fontSize: 13}}>Email here</Text>
+                            <Text style={{fontSize: 14, fontWeight: "bold"}}>Reinhard Dave Yunardi</Text>
+                            <Text style={{fontWeight: "200", fontSize: 13}}>reinhard.yunardi@student.citraberkat</Text>
                             <View style={Style.Devider} />
-                            <View style={{flexDirection: "column", justifyContent: "space-between", height: "85%"}}>
+                            <View style={{flexDirection: "column", justifyContent: "space-between", height: "auto"}}>
                                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                                     <TouchableOpacity style={{marginHorizontal: 15}} onPress={() => studentOfTheMonth()}>
                                         <View style={{alignItems: "center"}}>
@@ -102,14 +106,14 @@ const ProfileScreen = ({navigation}: any) => {
                                     </TouchableOpacity>
                                 </ScrollView>
                                 <View>
-                                    <Text>
-                                        Learn more about badges
+                                    <View style={{display: "flex", flexDirection: "row", alignItems: "center", gap: 5}}>
+                                        <Text>{t("profile.badgeHelp")}</Text>
                                         <TouchableOpacity onPress={() => seeMore()}>
                                             <Text>
                                                 <Ionicons name="help-circle" size={20} />
                                             </Text>
                                         </TouchableOpacity>
-                                    </Text>
+                                    </View>
                                 </View>
                             </View>
                         </View>
@@ -120,16 +124,33 @@ const ProfileScreen = ({navigation}: any) => {
                         <View style={{display: "flex", flexDirection: "row", alignItems: "center", gap: 1}}>
                             <Ionicons name="lock-closed-outline" size={24} color="black" />
                             <View style={Style.styleBtn}>
-                                <Text>Security</Text>
+                                <Text>{t("profile.security")}</Text>
                                 <Ionicons name="chevron-forward" size={16} color="black" />
                             </View>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={Style.button} onPress={() => bottomSheetRef.current?.snapToIndex(1)} activeOpacity={0.6}>
+                    <TouchableOpacity style={Style.button} onPress={() => navigation.navigate("ChangeLanguage")} activeOpacity={0.6}>
                         <View style={{display: "flex", flexDirection: "row", alignItems: "center", gap: 1}}>
                             <Ionicons name="language-outline" size={24} color="black" />
                             <View style={Style.styleBtn}>
-                                <Text>Change Language</Text>
+                                <View style={{flexDirection: "row", alignItems: "center", gap: 5}}>
+                                    <Text>{t("profile.language")}</Text>
+                                    <View style={{height: 20, width: 20}}>
+                                        {i18n.language === "en" ? (
+                                            <Image
+                                                source={require(`@/assets/images/en.png`)}
+                                                style={{width: 20, height: 20, borderWidth: 1}}
+                                                borderRadius={50}
+                                            />
+                                        ) : (
+                                            <Image
+                                                source={require(`@/assets/images/id.png`)}
+                                                style={{width: 20, height: 20, borderWidth: 1}}
+                                                borderRadius={50}
+                                            />
+                                        )}
+                                    </View>
+                                </View>
                                 <Ionicons name="chevron-forward" size={16} color="black" />
                             </View>
                         </View>
@@ -138,16 +159,16 @@ const ProfileScreen = ({navigation}: any) => {
                         <View style={{display: "flex", flexDirection: "row", alignItems: "center", gap: 1}}>
                             <Ionicons name="notifications-outline" size={24} color="black" />
                             <View style={Style.styleBtn}>
-                                <Text>Notification</Text>
+                                <Text>{t("profile.notification")}</Text>
                                 <Ionicons name="chevron-forward" size={16} color="black" />
                             </View>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={Style.button} onPress={() => bottomSheetRef.current?.snapToIndex(1)} activeOpacity={0.6}>
+                    <TouchableOpacity style={Style.button} onPress={() => navigation.navigate("Preferences")} activeOpacity={0.6}>
                         <View style={{display: "flex", flexDirection: "row", alignItems: "center", gap: 1}}>
                             <Ionicons name="accessibility-outline" size={24} color="black" />
                             <View style={Style.styleBtn}>
-                                <Text>Preference</Text>
+                                <Text>{t("profile.preference")}</Text>
                                 <Ionicons name="chevron-forward" size={16} color="black" />
                             </View>
                         </View>
@@ -208,20 +229,21 @@ const Style = StyleSheet.create({
         paddingHorizontal: 20,
         backgroundColor: "white",
         alignItems: "center",
+        justifyContent: "center",
         marginVertical: 20,
         marginHorizontal: 20,
-        height: 160,
+        height: "auto",
         borderRadius: 20,
     },
     profileImage: {
-        width: 120,
-        height: 120,
-        borderRadius: 180 / 2,
+        width: 80,
+        height: 80,
+        borderRadius: 80 / 2,
     },
     userInfo: {
         flex: 1,
         height: "90%",
-        padding: 20,
+        padding: 10,
     },
     badgeContainer: {
         display: "flex",

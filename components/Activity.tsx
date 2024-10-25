@@ -2,9 +2,11 @@ import {colorPalette} from "@/constants/Colors";
 import {useFetchHomework, useFetchQuiz} from "@/service/api";
 import {Ionicons} from "@expo/vector-icons";
 import React, {useState} from "react";
+import {useTranslation} from "react-i18next";
 import {ScrollView, View, Text, TouchableOpacity, StyleSheet} from "react-native";
 
 const Activity = (navigation: any) => {
+    const {t} = useTranslation();
     const [categories, setCategories] = useState(true);
     const {homework} = useFetchHomework();
     const {quiz} = useFetchQuiz();
@@ -20,6 +22,7 @@ const Activity = (navigation: any) => {
                     gap: 10,
                     paddingLeft: 5,
                     paddingRight: 5,
+                    marginVertical: 10,
                     alignItems: "center",
                 }}
             >
@@ -156,7 +159,7 @@ const Activity = (navigation: any) => {
                 </TouchableOpacity>
             </View>
             <View style={Styles.due}>
-                <Text style={Styles.Categories}>{categories ? "Homework" : "Quiz"}</Text>
+                <Text style={Styles.Categories}>{categories ? t("activity.homework") : t("activity.quiz")}</Text>
             </View>
         </View>
     );
